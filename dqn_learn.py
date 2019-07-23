@@ -192,10 +192,6 @@ def dqn_learing(
         reward = max(-1.0, min(reward, 1.0))
         # Store other info in replay memory
         replay_buffer.store_effect(last_idx, action, reward, done)
-        # Resets the environment when reaching an episode boundary.
-        if done:
-            episode_reward = 0
-            obs = env.reset()
 
         if done and reward >= 100:
             print("reward is 100 reached goal")
@@ -205,6 +201,13 @@ def dqn_learing(
                 'target_state_dict': target_Q.state_dict(),
                 'optimizer' : optimizer.state_dict(),
             }, "checkpoints/checkpoint.%dreachedDestination.tar" % t)
+
+        # Resets the environment when reaching an episode boundary.
+        if done:
+            episode_reward = 0
+            obs = env.reset()
+
+        
         last_obs = obs
 
         ### Perform experience replay and train the network.

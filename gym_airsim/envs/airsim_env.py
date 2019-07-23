@@ -24,7 +24,7 @@ class AirSimEnv(gym.Env):
 
 		self.client = myAirSimClient()
 
-		self.goal = [100.0, -200.0] # global xy coordinates
+		self.goal = [100.0, 200.0] # global xy coordinates
 		self.distance_before = 100
 		self.steps = 0
 		self.no_episode = 0
