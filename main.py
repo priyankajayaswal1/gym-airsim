@@ -46,7 +46,7 @@ parser = argparse.ArgumentParser(description='AirSim Navigation Reinforcement Le
 #                    metavar='W', help='weight decay (default: 1e-4)')
 #parser.add_argument('--print-freq', '-p', default=10, type=int,
 #                    metavar='N', help='print frequency (default: 10)')
-parser.add_argument('--checkpoint', default='', type=str, metavar='PATH',
+parser.add_argument('--checkpoint', default='checkpoints', type=str, metavar='PATH',
                     help='path to latest checkpoint (default: none)')
 #parser.add_argument('-e', '--evaluate', dest='evaluate', action='store_true',
 #                    help='evaluate model on validation set')
@@ -68,7 +68,7 @@ def main(env):
 		kwargs=dict(lr=LEARNING_RATE, alpha=ALPHA, eps=EPS),
 	)
 
-	exploration_schedule = LinearSchedule(1000000, 0.1)
+	exploration_schedule = LinearSchedule(500, 0.1)
 
 	dqn_learing(
 		env=env,

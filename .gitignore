@@ -1,2 +1,5 @@
 *.pyc
 checkpoints
+dist/
+gym_airsim.egg-info/
+.ipynb_checkpoints/

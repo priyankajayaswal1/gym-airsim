@@ -8,6 +8,7 @@ from collections import namedtuple
 from itertools import count
 import random
 import gym.spaces
+import os
 
 import torch
 import torch.nn as nn
@@ -102,6 +103,9 @@ def dqn_learing(
     # BUILD MODEL #
     ###############
 
+    print("env.observation_space.shape" + str(env.observation_space.shape))
+    print("env.action_space.shape" + str(env.action_space.shape))
+
     if len(env.observation_space.shape) == 1:
         # This means we are running on low-dimensional observations (e.g. RAM)
         input_arg = env.observation_space.shape[0]
@@ -109,6 +113,8 @@ def dqn_learing(
         img_h, img_w, img_c = env.observation_space.shape
         input_arg = frame_history_len * img_c
     num_actions = env.action_space.n
+    print("input_arg" + str(input_arg))
+    print("num_actions" + str(num_actions))
 
     # Construct an epilson greedy policy with given exploration schedule
     def select_epilson_greedy_action(model, obs, t):
@@ -117,8 +123,10 @@ def dqn_learing(
         if sample > eps_threshold:
             obs = torch.from_numpy(obs).type(dtype).unsqueeze(0) / 255.0
             # Use volatile = True if variable is only used in inference mode, i.e. dont save the history
+            print(model(Variable(obs, volatile=True)).data.max(1)[1].view(1,1))
             return model(Variable(obs, volatile=True)).data.max(1)[1].view(1,1)
         else:
+            print (torch.IntTensor([[random.randrange(num_actions)]]))
             return torch.IntTensor([[random.randrange(num_actions)]])
 
     # Initialize target q function and q function
@@ -158,6 +166,7 @@ def dqn_learing(
     episode_rewards = []
 
     for t in count():
+        print("t = " + str(t))
         ### Check stopping criterion
         if stopping_criterion is not None and stopping_criterion(env):
             break
@@ -187,6 +196,15 @@ def dqn_learing(
         if done:
             episode_reward = 0
             obs = env.reset()
+
+        if done and reward >= 100:
+            print("reward is 100 reached goal")
+            save_checkpoint({
+                'epoch': t + 1,
+                'model_state_dict': Q.state_dict(),
+                'target_state_dict': target_Q.state_dict(),
+                'optimizer' : optimizer.state_dict(),
+            }, "checkpoints/checkpoint.%dreachedDestination.tar" % t)
         last_obs = obs
 
         ### Perform experience replay and train the network.
@@ -262,6 +280,7 @@ def dqn_learing(
         Statistic["best_mean_episode_rewards"].append(best_mean_episode_reward)
 
         if t % LOG_EVERY_N_STEPS == 0 and t > learning_starts:
+            print("### 4. Log progress and keep track of statistics")
             print("Timestep %d" % (t,))
             print("mean reward (100 episodes) %f" % mean_episode_reward)
             print("best mean reward %f" % best_mean_episode_reward)
@@ -276,6 +295,7 @@ def dqn_learing(
 
         ### 5. Save a checkpoint
         if t % SAVE_EVERY_N_STEPS == 0 and t > learning_starts:
+            print("### 5. Save a checkpoint")
             save_checkpoint({
                 'epoch': t + 1,
                 'model_state_dict': Q.state_dict(),

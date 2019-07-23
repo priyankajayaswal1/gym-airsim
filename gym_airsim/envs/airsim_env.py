@@ -68,6 +68,8 @@ class AirSimEnv(gym.Env):
 			done = True
 			reward = 100.0
 
+		print ("distance " + str(distance))
+		print ("steps " + str(self.steps))
 		self.distance_before = distance
 		self.reward_sum += reward
 		if self.reward_sum < -100:
